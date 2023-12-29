@@ -1,16 +1,22 @@
 package apiserver
 
-import "github.com/sirupsen/logrus"
+import (
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
+)
 
+// added router on 17:48
 type APIServer struct {
 	config *Config
 	logger *logrus.Logger
+	router *mux.Router
 }
 
 func New(config *Config) *APIServer {
 	return &APIServer{
 		config: config,
 		logger: logrus.New(),
+		router: mux.NewRouter(),
 	}
 }
 
