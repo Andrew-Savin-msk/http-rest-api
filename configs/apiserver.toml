@@ -1,5 +1,5 @@
+[config]
 bind_addr = ":8081"
 log_level = "debug"
-
-[store]
+[config.stor.store]
 database_url = "host=localhost dbname=restapi_dev sslmode=disable"

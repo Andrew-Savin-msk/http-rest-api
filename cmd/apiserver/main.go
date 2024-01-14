@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 
 	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/apiserver"
@@ -20,7 +21,9 @@ func main() {
 	flag.Parse()
 
 	config := apiserver.NewConfig()
-	_, err := toml.DecodeFile(configPath, config)
+	meta, err := toml.DecodeFile(configPath, config)
+	fmt.Println(meta, err)
+	fmt.Println(*config)
 	if err != nil {
 		log.Fatal(err)
 	}
