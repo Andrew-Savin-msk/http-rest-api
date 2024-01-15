@@ -64,8 +64,8 @@ func (s *APIServer) configureRouter() {
 
 func (s *APIServer) configureStore() error {
 	const op = "internal.app.apiserver.configureStore"
-	st := store.New(s.config.Store)
-	err := st.Open()
+	st := store.New()
+	err := st.Open(s.config.DatabaseURL)
 	if err != nil {
 		return fmt.Errorf("%s, with opening store, ended with error: %w", op, err)
 	}

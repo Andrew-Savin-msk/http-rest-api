@@ -21,9 +21,9 @@ func main() {
 	flag.Parse()
 
 	config := apiserver.NewConfig()
-	meta, err := toml.DecodeFile(configPath, config)
-	fmt.Println(meta, err)
+	_, err := toml.DecodeFile(configPath, config)
 	fmt.Println(*config)
+	fmt.Println(config.DatabaseURL)
 	if err != nil {
 		log.Fatal(err)
 	}
