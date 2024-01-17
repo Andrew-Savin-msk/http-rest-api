@@ -18,7 +18,7 @@ type APIServer struct {
 	store  *store.Store
 }
 
-func New(config *Config) *APIServer {
+func NewServer(config *Config) *APIServer {
 	return &APIServer{
 		config: config,
 		logger: logrus.New(),
@@ -64,7 +64,7 @@ func (s *APIServer) configureRouter() {
 
 func (s *APIServer) configureStore() error {
 	const op = "internal.app.apiserver.configureStore"
-	st := store.New()
+	st := store.NewStore()
 	err := st.Open(s.config.DatabaseURL)
 	if err != nil {
 		return fmt.Errorf("%s, with opening store, ended with error: %w", op, err)

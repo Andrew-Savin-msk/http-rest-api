@@ -7,10 +7,11 @@ import (
 )
 
 type Store struct {
-	db *sql.DB
+	db             *sql.DB
+	userRepository *UserRepository
 }
 
-func New() *Store {
+func NewStore() *Store {
 	return &Store{}
 }
 
@@ -32,4 +33,16 @@ func (s *Store) Open(DatabaseURL string) error {
 
 func (s *Store) Close() {
 	s.db.Close()
+}
+
+func (s *Store) User() *UserRepository {
+	if s.userRepository != nil {
+		return s.userRepository
+	}
+
+	s.userRepository = &UserRepository{
+		store: s,
+	}
+
+	return s.userRepository
 }
