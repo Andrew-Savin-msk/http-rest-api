@@ -1,4 +1,4 @@
-package store
+package sqlstore
 
 import (
 	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/model"
@@ -45,7 +45,6 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 		&u.Email,
 		&u.EncryptedPassword,
 	)
-
 	if err != nil {
 		return nil, err
 	}

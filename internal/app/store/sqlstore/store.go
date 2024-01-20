@@ -1,4 +1,4 @@
-package store
+package sqlstore
 
 import (
 	"database/sql"
@@ -11,24 +11,10 @@ type Store struct {
 	userRepository *UserRepository
 }
 
-func NewStore() *Store {
-	return &Store{}
-}
-
-func (s *Store) Open(DatabaseURL string) error {
-	db, err := sql.Open("postgres", DatabaseURL)
-	if err != nil {
-		return err
+func NewStore(db *sql.DB) *Store {
+	return &Store{
+		db: db,
 	}
-
-	err = db.Ping()
-	if err != nil {
-		return err
-	}
-
-	s.db = db
-
-	return nil
 }
 
 func (s *Store) Close() {
