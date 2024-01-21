@@ -1,11 +1,12 @@
 package apiserver
 
 import (
+	"database/sql"
 	"fmt"
 	"io"
 	"net/http"
 
-	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/store"
+	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/store/sqlstore"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -15,7 +16,7 @@ type APIServer struct {
 	config *Config
 	logger *logrus.Logger
 	router *mux.Router
-	store  *store.Store
+	store  *sqlstore.Store
 }
 
 func NewServer(config *Config) *APIServer {
@@ -64,11 +65,12 @@ func (s *APIServer) configureRouter() {
 
 func (s *APIServer) configureStore() error {
 	const op = "internal.app.apiserver.configureStore"
-	st := store.NewStore()
-	err := st.Open(s.config.DatabaseURL)
+	db, err := sql.Open("postgres", s.config.DatabaseURL)
 	if err != nil {
 		return fmt.Errorf("%s, with opening store, ended with error: %w", op, err)
 	}
+
+	st := sqlstore.NewStore(db)
 
 	s.store = st
 
