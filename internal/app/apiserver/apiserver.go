@@ -2,83 +2,33 @@ package apiserver
 
 import (
 	"database/sql"
-	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/store/sqlstore"
-	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 )
 
-// added router on 17:48
-type APIServer struct {
-	config *Config
-	logger *logrus.Logger
-	router *mux.Router
-	store  *sqlstore.Store
-}
-
-func NewServer(config *Config) *APIServer {
-	return &APIServer{
-		config: config,
-		logger: logrus.New(),
-		router: mux.NewRouter(),
-	}
-}
-
-func (s *APIServer) Start() error {
-	const op = "internal.app.apiserver.Start"
-	err := s.configureLogger()
+func Start(config *Config) error {
+	db, err := newDB(config.DatabaseURL)
 	if err != nil {
-		return fmt.Errorf("%s; error with starting server in: %w", op, err)
+		return err
 	}
 
-	s.configureRouter()
+	defer db.Close()
+	store := sqlstore.NewStore(db)
+	srv := newServer(store)
+	return http.ListenAndServe(config.BindAddr, srv)
+}
 
-	err = s.configureStore()
-
+func newDB(databaseURL string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
-		return fmt.Errorf("%s; error with starting server in: %w", op, err)
+		return nil, err
 	}
 
-	s.logger.Info("starting api server")
-
-	return http.ListenAndServe(s.config.BindAddr, s.router)
-}
-
-func (s *APIServer) configureLogger() error {
-	const op = "internal.app.apiserver.configureLogger"
-	level, err := logrus.ParseLevel(s.config.LogLevel)
+	err = db.Ping()
 	if err != nil {
-		return fmt.Errorf("%s, with setting configure level, ended with error: %w", op, err)
+		return nil, err
 	}
 
-	s.logger.SetLevel(level)
-
-	return nil
-}
-
-func (s *APIServer) configureRouter() {
-	s.router.HandleFunc("/hello", s.handleHello())
-}
-
-func (s *APIServer) configureStore() error {
-	const op = "internal.app.apiserver.configureStore"
-	db, err := sql.Open("postgres", s.config.DatabaseURL)
-	if err != nil {
-		return fmt.Errorf("%s, with opening store, ended with error: %w", op, err)
-	}
-
-	st := sqlstore.NewStore(db)
-
-	s.store = st
-
-	return nil
-}
-
-func (s *APIServer) handleHello() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, "Hello")
-	}
+	return db, nil
 }
