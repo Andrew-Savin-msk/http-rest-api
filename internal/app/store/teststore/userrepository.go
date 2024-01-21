@@ -1,14 +1,13 @@
-package sqlstore
+package teststore
 
 import (
-	"database/sql"
-
 	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/model"
 	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/store"
 )
 
 type UserRepository struct {
 	store *Store
+	users map[string]*model.User
 }
 
 func (r *UserRepository) Create(u *model.User) error {
@@ -24,30 +23,16 @@ func (r *UserRepository) Create(u *model.User) error {
 		return err
 	}
 
-	// Insert into table
-	return r.store.db.QueryRow(
-		"INSERT INTO users (email, encrypted_password) VALUES ($1, $2) RETURNING id",
-		u.Email,
-		u.EncryptedPassword,
-	).Scan(&u.ID)
+	r.users[u.Email] = u
+	u.ID = len(r.users)
+	return nil
 }
 
 func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
-	u := &model.User{}
+	u, ok := r.users[email]
 
-	err := r.store.db.QueryRow(
-		"SELECT id, email, encrypted_password FROM users WHERE email = $1",
-		email,
-	).Scan(
-		&u.ID,
-		&u.Email,
-		&u.EncryptedPassword,
-	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, store.ErrRecordNotFound
-		}
-		return nil, err
+	if !ok {
+		return nil, store.ErrRecordNotFound
 	}
 	return u, nil
 }
