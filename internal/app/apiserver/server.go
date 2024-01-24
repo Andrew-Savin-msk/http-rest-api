@@ -78,6 +78,7 @@ func (s *server) handleUsersCreate() http.HandlerFunc {
 	}
 }
 
+// Creating auntificated session
 func (s *server) handleSessionsCreate() http.HandlerFunc {
 	type request struct {
 		Email    string `json:"email"`
