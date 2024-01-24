@@ -7,10 +7,10 @@ import (
 )
 
 type User struct {
-	ID                int
-	Email             string
-	Password          string
-	EncryptedPassword string
+	ID                int    `json:"id"`
+	Email             string `json:"email"`
+	Password          string `json:"password,omitempty"`
+	EncryptedPassword string `json:"-"`
 }
 
 // Check if data valid for table
@@ -34,6 +34,15 @@ func (u *User) BeforCreate() error {
 	}
 
 	return nil
+}
+
+// Func for deliting private information befor sending model into respond
+func (u *User) Sanitize() {
+	u.Password = ""
+}
+
+func (u *User) ComparePassword(password string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(u.EncryptedPassword), []byte(password)) == nil
 }
 
 // Encrypts password
