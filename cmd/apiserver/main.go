@@ -9,18 +9,20 @@ import (
 )
 
 var (
-	configPath string
+	configPath       string
+	configPathDocker string
 )
 
 func init() {
 	flag.StringVar(&configPath, "config-path", "configs/apiserver.toml", "path to config file")
+	flag.StringVar(&configPathDocker, "config-path-docker", "configs/apiserverDocker.toml", "path to config file for docker DB")
 }
 
 func main() {
 	flag.Parse()
 
 	config := apiserver.NewConfig()
-	_, err := toml.DecodeFile(configPath, config)
+	_, err := toml.DecodeFile(configPathDocker, config)
 	if err != nil {
 		log.Fatal(err)
 	}
