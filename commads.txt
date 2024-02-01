@@ -1,3 +1,0 @@
-docker pull postgres
-docker run --name=todo-db -e POSTGRES_PASSWORD="qwerty" -p 5436 -d --rm postgres
-migrate -path migrations -database "postgres://postgres:qwerty@localhost:5436/postgres?sslmode=disable" up 
