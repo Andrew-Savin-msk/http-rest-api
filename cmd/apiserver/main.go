@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/apiserver"
-	"github.com/BurntSushi/toml"
 )
 
 var (
@@ -21,13 +20,15 @@ func init() {
 func main() {
 	flag.Parse()
 
-	config := apiserver.NewConfig()
-	_, err := toml.DecodeFile(configPathDocker, config)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// config := apiserver.NewConfig()
+	// _, err := toml.DecodeFile(configPath, config)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	err = apiserver.Start(config)
+	config := apiserver.ConfigLoad()
+
+	err := apiserver.Start(config)
 	if err != nil {
 		log.Fatal(err)
 	}
