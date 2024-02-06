@@ -15,10 +15,6 @@ type Config struct {
 	SessionKey  string `toml:"session_key"`
 }
 
-func NewConfig() *Config {
-	return &Config{}
-}
-
 func ConfigLoad() *Config {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -31,7 +27,7 @@ func ConfigLoad() *Config {
 	}
 	_, err = os.Stat(configPath)
 	if os.IsNotExist(err) {
-		log.Fatal("config file does not exists %s", configPath)
+		log.Fatalf("config file does not exists %s", configPath)
 	}
 
 	var cfg Config
