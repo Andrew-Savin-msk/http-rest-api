@@ -1,7 +1,7 @@
 package teststore
 
 import (
-	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/model"
+	model "github.com/Andrew-Savin-msk/http-rest-api/internal/app/model/user"
 	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/store"
 )
 

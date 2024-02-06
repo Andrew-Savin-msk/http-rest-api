@@ -1,6 +1,6 @@
 package store
 
-import "github.com/Andrew-Savin-msk/http-rest-api/internal/app/model"
+import model "github.com/Andrew-Savin-msk/http-rest-api/internal/app/model/user"
 
 type UserRepository interface {
 	Create(*model.User) error

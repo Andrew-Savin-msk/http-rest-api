@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/model"
+	model "github.com/Andrew-Savin-msk/http-rest-api/internal/app/model/user"
 	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/store/teststore"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
@@ -47,7 +47,6 @@ func TestServer_AuthenticateUser(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
-	
 
 	for _, tc := range testCases {
 		rec := httptest.NewRecorder()
