@@ -16,3 +16,15 @@
 - Migrations
   
     Postgres migrations created by: https://github.com/golang-migrate/migrate
+
+- Toml partser
+    
+    Parsing config file by: https://github.com/BurntSushi/toml (config path takes out from ENV variables)
+
+- Router
+
+    using not default router: https://github.com/gorilla/mux
+
+- Logger
+
+    I usually prefer to use slog? but in this project I tried to realise: https://github.com/sirupsen/logrus
