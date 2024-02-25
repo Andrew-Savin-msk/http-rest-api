@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"os"
 	"time"
 
 	model "github.com/Andrew-Savin-msk/http-rest-api/internal/app/model/user"
 	"github.com/Andrew-Savin-msk/http-rest-api/internal/app/store"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -17,7 +19,7 @@ import (
 )
 
 const (
-	sessionName        = "gopherschool"
+	sessionName        = "WeRReR"
 	ctxKeyUser  ctxKey = iota
 	ctxKeyRequestID
 )
@@ -34,6 +36,7 @@ type server struct {
 	logger       *logrus.Logger
 	store        store.Store
 	sessionStore sessions.Store
+	secretKeyJWT string
 }
 
 func newServer(store store.Store, sessionStore sessions.Store) *server {
@@ -42,13 +45,14 @@ func newServer(store store.Store, sessionStore sessions.Store) *server {
 		logger:       logrus.New(),
 		store:        store,
 		sessionStore: sessionStore,
+		secretKeyJWT: os.Getenv("SECRET_KEY_JWT"),
 	}
-
 	s.configureRouter()
 
 	return s
 }
 
+// Just for http.Hendler realisation
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
@@ -56,16 +60,18 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *server) configureRouter() {
 	s.router.Use(s.setRequestID)
 	s.router.Use(s.logRequest)
-	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
+	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"}))) // Controls reauest from domains
 	s.router.HandleFunc("/users", s.handleUsersCreate()).Methods("POST")
 	s.router.HandleFunc("/sessions", s.handleSessionsCreate()).Methods("POST")
 
 	// /private/*
 	private := s.router.PathPrefix("/private").Subrouter()
 	private.Use(s.authenticateUser)
+	private.HandleFunc("/get-token", s.handleGetJWT()).Methods("GET")
 	private.HandleFunc("/whoami", s.handleWhoami()).Methods("GET")
 }
 
+// Sets unical id for every request
 func (s *server) setRequestID(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := uuid.New().String()
@@ -75,6 +81,7 @@ func (s *server) setRequestID(next http.Handler) http.Handler {
 	})
 }
 
+// Requeests logging
 func (s *server) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger := s.logger.WithFields(logrus.Fields{
@@ -122,6 +129,23 @@ func (s *server) authenticateUser(next http.Handler) http.Handler {
 	})
 }
 
+func (s *server) handleGetJWT() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		payload := jwt.MapClaims{
+			"id":          r.Context().Value(ctxKeyUser).(*model.User).ID,
+			"email":       r.Context().Value(ctxKeyUser).(*model.User).Email,
+			"encPassword": r.Context().Value(ctxKeyUser).(*model.User).EncryptedPassword,
+		}
+		token := jwt.NewWithClaims(jwt.SigningMethodES256, payload)
+		rt, err := token.SignedString(s.secretKeyJWT)
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+		}
+		s.respond(w, r, http.StatusOK, rt)
+	})
+}
+
+// Returns user data back to authorised user
 func (s *server) handleWhoami() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.respond(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(*model.User))
