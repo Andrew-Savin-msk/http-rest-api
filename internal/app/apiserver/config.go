@@ -1,8 +1,10 @@
 package apiserver
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"runtime"
 
 	"github.com/BurntSushi/toml"
 	"github.com/joho/godotenv"
@@ -16,16 +18,19 @@ type Config struct {
 }
 
 func ConfigLoad() *Config {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading local.env file whith error:", err)
+	if runtime.GOOS == "windows" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Fatal("Error loading local.env file whith error:", err)
+		}
 	}
 
 	configPath := os.Getenv("CONFIG_PATH")
+	fmt.Println(configPath)
 	if configPath == "" {
 		log.Fatal("config path is not set")
 	}
-	_, err = os.Stat(configPath)
+	_, err := os.Stat(configPath)
 	if os.IsNotExist(err) {
 		log.Fatalf("config file does not exists %s", configPath)
 	}

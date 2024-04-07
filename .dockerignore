@@ -1,0 +1,5 @@
+*.md
+Dockerfile
+docker-compose.yml
+*.txt
+*.env

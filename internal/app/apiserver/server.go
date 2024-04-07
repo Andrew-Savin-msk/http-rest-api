@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -36,7 +37,7 @@ type server struct {
 	logger       *logrus.Logger
 	store        store.Store
 	sessionStore sessions.Store
-	secretKeyJWT string
+	publicKeyJWT []byte
 }
 
 func newServer(store store.Store, sessionStore sessions.Store) *server {
@@ -45,7 +46,7 @@ func newServer(store store.Store, sessionStore sessions.Store) *server {
 		logger:       logrus.New(),
 		store:        store,
 		sessionStore: sessionStore,
-		secretKeyJWT: os.Getenv("SECRET_KEY_JWT"),
+		publicKeyJWT: []byte(os.Getenv("SECRET_KEY_JWT")),
 	}
 	s.configureRouter()
 
@@ -137,9 +138,11 @@ func (s *server) handleGetJWT() http.HandlerFunc {
 			"encPassword": r.Context().Value(ctxKeyUser).(*model.User).EncryptedPassword,
 		}
 		token := jwt.NewWithClaims(jwt.SigningMethodES256, payload)
-		rt, err := token.SignedString(s.secretKeyJWT)
+		fmt.Println(s.publicKeyJWT)
+		rt, err := token.SignedString(s.publicKeyJWT)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 		s.respond(w, r, http.StatusOK, rt)
 	})
