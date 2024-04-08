@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"database/sql"
 	"encoding/pem"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -18,11 +19,13 @@ func Start(config *Config) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("Db connected sucessfuly!")
 
 	defer db.Close()
 	store := sqlstore.NewStore(db)
 	sessionStore := sessions.NewCookieStore([]byte(config.SessionKey))
 	srv := newServer(store, sessionStore)
+	fmt.Println("Server started")
 	return http.ListenAndServe(config.BindAddr, srv)
 }
 

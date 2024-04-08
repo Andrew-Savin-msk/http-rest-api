@@ -18,18 +18,23 @@ type Config struct {
 }
 
 func ConfigLoad() *Config {
+	fmt.Println("Loading config")
+	var configPathEnv = "CONFIG_PATH_DOCKER"
 	if runtime.GOOS == "windows" {
 		err := godotenv.Load(".env")
 		if err != nil {
 			log.Fatal("Error loading local.env file whith error:", err)
 		}
+		configPathEnv = "CONFIG_PATH"
 	}
-
-	configPath := os.Getenv("CONFIG_PATH")
+	fmt.Println("Env path set")
+	configPath := os.Getenv(configPathEnv)
+	// configPath := os.Getenv("CONFIG_PATH_DOCKER")
 	fmt.Println(configPath)
 	if configPath == "" {
 		log.Fatal("config path is not set")
 	}
+	fmt.Println("config loaded")
 	_, err := os.Stat(configPath)
 	if os.IsNotExist(err) {
 		log.Fatalf("config file does not exists %s", configPath)

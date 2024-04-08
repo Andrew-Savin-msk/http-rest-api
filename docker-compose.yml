@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=restapi_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Sassassa12
+    ports:
+      - "5432:5432"
+  api:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "8081:8081"
