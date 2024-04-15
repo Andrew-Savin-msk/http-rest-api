@@ -44,14 +44,17 @@ RUN go mod tidy
 #         sleep 1; \
 #     done
 
-CMD while true; do \
-        if curl -sSf -w "%{http_code}" -o /dev/null http://example.com | grep -q "200"; then \
-            echo "Сервер доступен"; \
-            break; \
-        else \
-            echo "Ошибка: сервер недоступен"; \
-        fi; \
-        sleep 1; \
-    done \
-    && migrate -path migrations -database "postgres://postgres:Sassassa12@db:5432/restapi_dev?sslmode=disable" up \
-    && go run cmd/apiserver/main.go
+# CMD while true; do \
+#         if curl -sSf -w "%{http_code}" -o /dev/null http://example.com | grep -q "200"; then \
+#             echo "Сервер доступен"; \
+#             break; \
+#         else \
+#             echo "Ошибка: сервер недоступен"; \
+#         fi; \
+#         sleep 1; \
+#     done \
+#     && migrate -path migrations -database "postgres://postgres:Sassassa12@db:5432/restapi_dev?sslmode=disable" up \
+#     && go run cmd/apiserver/main.go
+
+CMD migrate -path migrations -database "postgres://postgres:Sassassa12@db:5432/restapi_dev?sslmode=disable" up \
+  && go run cmd/apiserver/main.go
